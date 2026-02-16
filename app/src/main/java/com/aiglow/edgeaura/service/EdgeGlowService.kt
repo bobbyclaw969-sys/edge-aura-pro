@@ -7,7 +7,8 @@ import android.graphics.*
 import android.os.Build
 import android.os.IBinder
 import android.view.*
-import android.window.WindowManager
+import android.app.NotificationManager
+import androidx.core.app.NotificationCompat
 import com.aiglow.edgeaura.EdgeAuraApp
 import com.aiglow.edgeaura.R
 import com.aiglow.edgeaura.ui.MainActivity
@@ -44,9 +45,9 @@ class EdgeAuraService : Service() {
         startForeground(1, createNotification())
         
         if (prefs.isEnabled()) {
-            showEdgeAura()
+            showEdgeGlow()
         } else {
-            hideEdgeAura()
+            hideEdgeGlow()
         }
         
         return START_STICKY
@@ -60,7 +61,7 @@ class EdgeAuraService : Service() {
         )
         
         return NotificationCompat.Builder(this, EdgeAuraApp.CHANNEL_ID)
-            .setContentTitle("Edge Glow Active")
+            .setContentTitle("Edge Aura Active")
             .setContentText("Your screen edges are glowing")
             .setSmallIcon(R.drawable.ic_glow)
             .setContentIntent(pendingIntent)
@@ -68,7 +69,7 @@ class EdgeAuraService : Service() {
             .build()
     }
     
-    fun showEdgeAura() {
+    fun showEdgeGlow() {
         if (edgeView != null) return
         
         val params = WindowManager.LayoutParams(
@@ -86,7 +87,7 @@ class EdgeAuraService : Service() {
         windowManager?.addView(edgeView, params)
     }
     
-    fun hideEdgeAura() {
+    fun hideEdgeGlow() {
         edgeView?.let {
             windowManager?.removeView(it)
             edgeView = null
@@ -98,7 +99,7 @@ class EdgeAuraService : Service() {
     }
     
     override fun onDestroy() {
-        hideEdgeAura()
+        hideEdgeGlow()
         super.onDestroy()
     }
     
@@ -113,7 +114,7 @@ class EdgeAuraView(context: Context, private val prefs: PreferencesManager) : Vi
     private val handler = android.os.Handler(android.os.Looper.getMainLooper())
     private val animator = object : Runnable {
         override fun run() {
-            animationPhase = (animationPhase + 1) % 360
+            animationPhase = (animationPhase + 2f) % 360f
             invalidate()
             handler.postDelayed(this, 50) // 20fps
         }
@@ -134,13 +135,11 @@ class EdgeAuraView(context: Context, private val prefs: PreferencesManager) : Vi
         val height = height.toFloat()
         val edgeWidth = prefs.getEdgeWidth()
         
-        // Animate colors if enabled
+        // Get animated colors (cycle through colors)
         val animatedColors = if (prefs.isAnimating()) {
             colors.mapIndexed { index, color ->
-                val hsl = FloatArray(3)
-                Color.colorToHSL(color, hsl)
-                hsl[0] = (hsl[0] + animationPhase) % 360
-                Color.HSLToColor(hsl)
+                // Simple color shifting - rotate hue
+                shiftHue(color, (animationPhase + index * 30) % 360f)
             }
         } else colors
         
@@ -176,6 +175,23 @@ class EdgeAuraView(context: Context, private val prefs: PreferencesManager) : Vi
         drawCornerGlow(canvas, width, 0f, animatedColors, edgeWidth) // Top-right
         drawCornerGlow(canvas, 0f, height, animatedColors, edgeWidth) // Bottom-left
         drawCornerGlow(canvas, width, height, animatedColors, edgeWidth) // Bottom-right
+    }
+    
+    // Simple hue shift without using Color.colorToHSL (API 26+)
+    private fun shiftHue(color: Int, shift: Float): Int {
+        val r = Color.red(color)
+        val g = Color.green(color)
+        val b = Color.blue(color)
+        
+        // Convert to HSV
+        val hsv = FloatArray(3)
+        Color.RGBToHSV(r, g, b, hsv)
+        
+        // Shift hue
+        hsv[0] = (hsv[0] + shift) % 360f
+        
+        // Convert back to RGB
+        return Color.HSVToColor(Color.alpha(color), hsv)
     }
     
     private fun drawCornerGlow(canvas: Canvas, x: Float, y: Float, colors: List<Int>, size: Float) {
