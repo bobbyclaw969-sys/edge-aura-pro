@@ -79,9 +79,11 @@ class EdgeAuraService : Service() {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
             WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+            WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR,
             PixelFormat.TRANSLUCENT
         )
+        params.alpha = 1.0f
         
         edgeView = EdgeAuraView(this, prefs)
         windowManager?.addView(edgeView, params)
@@ -121,7 +123,9 @@ class EdgeAuraView(context: Context, private val prefs: PreferencesManager) : Vi
     }
     
     init {
-        setZOrderOnTop(true)
+        // Set Z-order to render on top
+        isClickable = false
+        isFocusable = false
         handler.post(animator)
     }
     
