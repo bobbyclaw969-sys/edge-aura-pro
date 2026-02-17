@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import android.widget.LinearLayout
+import android.widget.Toast
 
 class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,40 +21,49 @@ class MainActivity : Activity() {
         
         val status = TextView(this)
         status.text = "Status: Ready"
-        status.textSize = 18f
+        status.textSize = 24f
         status.setPadding(50, 20, 50, 20)
         
         val btnToggle = Button(this)
         btnToggle.text = "Toggle Edge Glow"
-        btnToggle.setPadding(50, 30, 50, 30)
+        btnToggle.textSize = 20f
+        btnToggle.setPadding(50, 40, 50, 40)
         
         val btnColors = Button(this)
         btnColors.text = "Change Colors"
-        btnColors.setPadding(50, 30, 50, 30)
+        btnColors.textSize = 20f
+        btnColors.setPadding(50, 40, 50, 40)
         
         val btnAnimate = Button(this)
         btnAnimate.text = "Toggle Animation"
-        btnAnimate.setPadding(50, 30, 50, 30)
+        btnAnimate.textSize = 20f
+        btnAnimate.setPadding(50, 40, 50, 40)
         
         var glowOn = false
         var colorIndex = 0
         var animating = false
         
-        val colors = arrayOf("Cyan", "Green", "Magenta", "Blue", "Red", "Yellow")
+        val colorNames = arrayOf("Cyan", "Green", "Magenta", "Blue", "Red", "Yellow")
         
         btnToggle.setOnClickListener {
             glowOn = !glowOn
-            status.text = if (glowOn) "Status: Glow ON ✨" else "Status: Glow OFF"
+            val msg = if (glowOn) "✨ Glow is ON!" else "Glow is OFF"
+            status.text = msg
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
         
         btnColors.setOnClickListener {
-            colorIndex = (colorIndex + 1) % colors.size
-            status.text = "Color: ${colors[colorIndex]}"
+            colorIndex = (colorIndex + 1) % colorNames.size
+            val msg = "Color: ${colorNames[colorIndex]}"
+            status.text = msg
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
         
         btnAnimate.setOnClickListener {
             animating = !animating
-            status.text = if (animating) "Animation: ON" else "Animation: OFF"
+            val msg = if (animating) "Animation ON 🔄" else "Animation OFF"
+            status.text = msg
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
         
         layout.addView(title)
