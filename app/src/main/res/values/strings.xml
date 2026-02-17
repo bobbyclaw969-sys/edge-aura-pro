@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Edge Aura</string>
-    <string name="channel_name">Edge Glow Service</string>
-    <string name="channel_description">Keeps edge glow running</string>
 </resources>
