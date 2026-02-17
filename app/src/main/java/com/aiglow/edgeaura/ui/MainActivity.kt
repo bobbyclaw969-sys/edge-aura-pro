@@ -74,57 +74,97 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
         
-        // Color buttons - simple click cycles through colors
-        val colors = listOf(
-            -0x1, -0xff0100, -0xffff01, -0xff0001, -0xff00ff01, -0x100, -0xfe0100
-        ) // white, red, yellow, green, cyan, blue, magenta
+        // Color buttons - simple preset
+        btnColor1.setOnClickListener {
+            val colors = listOf(-0x1, 0xFF00FFFF.toInt(), 0xFF00FF00.toInt(), 0xFFFF00FF.toInt())
+            val current = prefs.getColors().toMutableList()
+            if (current.isNotEmpty()) {
+                val idx = colors.indexOf(current[0])
+                current[0] = colors[(idx + 1) % colors.size]
+                prefs.setColors(current)
+                updateColors()
+            }
+        }
         
-        btnColor1.setOnClickListener { cycleColor(0, colors) }
-        btnColor2.setOnClickListener { cycleColor(1, colors) }
-        btnColor3.setOnClickListener { cycleColor(2, colors) }
-        btnColor4.setOnClickListener { cycleColor(3, colors) }
+        btnColor2.setOnClickListener {
+            val colors = listOf(-0x1, 0xFF00FFFF.toInt(), 0xFF00FF00.toInt(), 0xFFFF00FF.toInt())
+            val current = prefs.getColors().toMutableList()
+            if (current.size > 1) {
+                val idx = colors.indexOf(current[1])
+                current[1] = colors[(idx + 1) % colors.size]
+                prefs.setColors(current)
+                updateColors()
+            }
+        }
+        
+        btnColor3.setOnClickListener {
+            val colors = listOf(-0x1, 0xFF00FFFF.toInt(), 0xFF00FF00.toInt(), 0xFFFF00FF.toInt())
+            val current = prefs.getColors().toMutableList()
+            if (current.size > 2) {
+                val idx = colors.indexOf(current[2])
+                current[2] = colors[(idx + 1) % colors.size]
+                prefs.setColors(current)
+                updateColors()
+            }
+        }
+        
+        btnColor4.setOnClickListener {
+            val colors = listOf(-0x1, 0xFF00FFFF.toInt(), 0xFF00FF00.toInt(), 0xFFFF00FF.toInt())
+            val current = prefs.getColors().toMutableList()
+            if (current.size > 3) {
+                val idx = colors.indexOf(current[3])
+                current[3] = colors[(idx + 1) % colors.size]
+                prefs.setColors(current)
+                updateColors()
+            }
+        }
         
         // Presets
-        findViewById<Button>(R.id.chipNeon)?.setOnClickListener {
-            prefs.setColors(listOf(-0x1, -0xffff01, -0xff00ff, -0xff7f80))
-            updateColors()
-        }
-        findViewById<Button>(R.id.chipFire)?.setOnClickListener {
-            prefs.setColors(listOf(-0xff0001, -0xfe0100, -0xfea100, -0xffcc01))
-            updateColors()
-        }
-    }
-    
-    private fun cycleColor(index: Int, colors: List<Int>) {
-        val current = prefs.getColors().toMutableList()
-        if (index < current.size) {
-            val currentIndex = colors.indexOf(current[index])
-            val nextIndex = (currentIndex + 1) % colors.size
-            current[index] = colors[nextIndex]
-            prefs.setColors(current)
-            updateColors()
+        try {
+            findViewById<Button>(R.id.chipNeon)?.setOnClickListener {
+                prefs.setColors(listOf(0xFF00FFFF.toInt(), 0xFF00FF00.toInt(), 0xFFFF00FF.toInt(), 0xFF0080FF.toInt()))
+                updateColors()
+            }
+            findViewById<Button>(R.id.chipFire)?.setOnClickListener {
+                prefs.setColors(listOf(0xFFFF0000.toInt(), 0xFFFF6600.toInt(), 0xFFFFCC00.toInt(), 0xFFFF3300.toInt()))
+                updateColors()
+            }
+        } catch (e: Exception) {
+            // Ignore missing buttons
         }
     }
     
     private fun updateColors() {
-        val colors = prefs.getColors()
-        btnColor1.setBackgroundColor(colors.getOrElse(0) { -0x1 })
-        btnColor2.setBackgroundColor(colors.getOrElse(1) { -0x1 })
-        btnColor3.setBackgroundColor(colors.getOrElse(2) { -0x1 })
-        btnColor4.setBackgroundColor(colors.getOrElse(3) { -0x1 })
+        try {
+            val colors = prefs.getColors()
+            btnColor1.setBackgroundColor(colors.getOrElse(0) { 0xFF00FFFF.toInt() })
+            btnColor2.setBackgroundColor(colors.getOrElse(1) { 0xFF00FF00.toInt() })
+            btnColor3.setBackgroundColor(colors.getOrElse(2) { 0xFFFF00FF.toInt() })
+            btnColor4.setBackgroundColor(colors.getOrElse(3) { 0xFF0080FF.toInt() })
+        } catch (e: Exception) {
+            // Ignore
+        }
     }
     
     private fun updateStatus() {
-        tvStatus.text = if (prefs.isEnabled()) "Active" else "Inactive"
-        tvStatus.setTextColor(if (prefs.isEnabled()) 0xFF00FF00.toInt() else 0xFF888888.toInt())
+        try {
+            tvStatus.text = if (prefs.isEnabled()) "Active" else "Inactive"
+            tvStatus.setTextColor(if (prefs.isEnabled()) 0xFF00FF00.toInt() else 0xFF888888.toInt())
+        } catch (e: Exception) {
+            // Ignore
+        }
     }
     
     private fun updateUI() {
-        switchMain.isChecked = prefs.isEnabled()
-        switchAnimate.isChecked = prefs.isAnimating()
-        sliderWidth.progress = prefs.getEdgeWidth().toInt()
-        sliderIntensity.progress = prefs.getIntensity()
-        updateColors()
-        updateStatus()
+        try {
+            switchMain.isChecked = prefs.isEnabled()
+            switchAnimate.isChecked = prefs.isAnimating()
+            sliderWidth.progress = prefs.getEdgeWidth().toInt()
+            sliderIntensity.progress = prefs.getIntensity()
+            updateColors()
+            updateStatus()
+        } catch (e: Exception) {
+            // Ignore
+        }
     }
 }
